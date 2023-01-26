@@ -72,8 +72,10 @@ export default {
   data() {
     return {
       apiData: [],
-      fromDataValue: new Date(Date.now()).toISOString().slice(0, 10),
-      toDataValue: "",
+      fromDataValue: new Date(Date.now() - 86400 * 1000)
+        .toISOString()
+        .slice(0, 10),
+      toDataValue: new Date(Date.now()).toISOString().slice(0, 10),
       selectedCoin: "",
       coinsArray: Object.keys(coins[0]),
       tradeCoins: false,
