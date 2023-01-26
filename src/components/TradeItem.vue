@@ -13,7 +13,14 @@
       }}
     </p>
     <h3>{{ Object.keys(itemObject)[2] }}</h3>
-    <p>{{ itemObject.price.toFixed(2) }}</p>
+    <p>
+      {{
+        new Intl.NumberFormat("us", {
+          style: "currency",
+          currency: "USD",
+        }).format(itemObject.price.toFixed(2))
+      }}
+    </p>
     <h3>{{ Object.keys(itemObject)[3] }}</h3>
     <p>{{ itemObject.tid }}</p>
     <h3>{{ Object.keys(itemObject)[4] }}</h3>
