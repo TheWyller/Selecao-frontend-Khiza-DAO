@@ -12,7 +12,8 @@
   <hr />
   <main>
     <h3>Do you want to know the history of the trades done?</h3>
-    <form action="" @submit="getData($event)">
+
+    <v-form ref="myForm" @submit="getData($event)">
       <v-text-field
         type="date"
         label="From"
@@ -22,12 +23,12 @@
       <v-select
         class="select-coins"
         v-model="selectedCoin"
-        label="Select"
+        label="Select the Coin"
         :items="coinsArray"
-        required
+        :rules="rules.required"
       ></v-select>
       <v-btn variant="tonal" type="submit"> Search </v-btn>
-    </form>
+    </v-form>
     <span class="total-value" v-if="tradeCoins">
       In this period was traded
       {{
@@ -43,8 +44,10 @@
     <section v-if="tradeCoins" class="trades-contanier">
       <TradeArea :array="apiData" />
     </section>
-    <section v-else class="no-trades">
-      <h3>No Trades</h3>
+    <section v-if="formValid" class="no-trades">
+      <div v-if="apiData.length === 0">
+        <h3>No Trades</h3>
+      </div>
     </section>
   </main>
 </template>
@@ -56,6 +59,8 @@ import SideHeader from "./components/SideHeader.vue";
 import TradeArea from "./components/TradeArea.vue";
 import { coins } from "./utils/arrayCoins.js";
 import { apiCall } from "./utils/apiCall.js";
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 export default {
   name: "App",
@@ -71,30 +76,50 @@ export default {
       selectedCoin: "",
       coinsArray: Object.keys(coins[0]),
       tradeCoins: false,
+      formValid: false,
+      rules: {
+        required: [(value) => !!value || "Required."],
+      },
     };
   },
   methods: {
     async getData(e) {
       e.preventDefault();
-      const fromDataValue = this.fromDataValue;
-      const toDataValue = this.toDataValue;
-      const epochDataFrom = Math.floor(
-        new Date(fromDataValue).getTime() / 1000.0
-      );
-      const epochDataTo = Math.floor(new Date(toDataValue).getTime() / 1000.0);
-      this.apiData = await apiCall(
-        this.selectedCoin,
-        "trades",
-        epochDataFrom,
-        epochDataTo
-      );
-      this.handleMaximumPrice();
+      if (!this.selectedCoin) {
+        this.notify();
+      } else {
+        const fromDataValue = this.fromDataValue;
+        const toDataValue = this.toDataValue;
+        const epochDataFrom = Math.floor(
+          new Date(fromDataValue).getTime() / 1000.0
+        );
+        const epochDataTo = Math.floor(
+          new Date(toDataValue).getTime() / 1000.0
+        );
+        this.apiData = await apiCall(
+          this.selectedCoin,
+          "trades",
+          epochDataFrom,
+          epochDataTo
+        );
+        this.handleMaximumPrice();
+        this.formValid = true;
+      }
     },
 
     handleMaximumPrice() {
       this.showSumPrice = true;
       this.tradeCoins = this.apiData.length > 0;
     },
+  },
+  setup() {
+    const notify = () => {
+      toast("Coin is Required", {
+        autoClose: 3000,
+        type: "error",
+      });
+    };
+    return { notify };
   },
 };
 </script>
@@ -148,9 +173,9 @@ label {
 }
 
 input,
-button {
-  height: 30px;
-  width: 150px;
+.v-input {
+  height: 80px;
+  width: 200px;
   margin-right: 10px;
 }
 
@@ -229,7 +254,7 @@ button:hover {
   }
 
   form {
-    width: 80%;
+    width: 85%;
     display: flex;
     flex-direction: row;
     margin: 0 0;
