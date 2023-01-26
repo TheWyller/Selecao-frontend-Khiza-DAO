@@ -13,17 +13,20 @@
   <main>
     <h3>Do you want to know the history of the trades done?</h3>
     <form action="" @submit="getData($event)">
-      <label for="from">From:</label>
-      <input type="date" v-model="fromDataValue" name="from" />
-      <label for="to">To:</label>
-      <input type="date" v-model="toDataValue" name="to" />
-      <select v-model="selectedCoin" required>
-        <option disabled value="">Select a Coin</option>
-        <option v-for="(item, i) in coinsArray" v-bind:key="i">
-          {{ item }}
-        </option>
-      </select>
-      <button type="submit">Search</button>
+      <v-text-field
+        type="date"
+        label="From"
+        v-model="fromDataValue"
+      ></v-text-field>
+      <v-text-field type="date" label="To" v-model="toDataValue"></v-text-field>
+      <v-select
+        class="select-coins"
+        v-model="selectedCoin"
+        label="Select"
+        :items="coinsArray"
+        required
+      ></v-select>
+      <v-btn variant="tonal" type="submit"> Search </v-btn>
     </form>
     <span class="total-value" v-if="tradeCoins">
       In this period was traded
@@ -37,8 +40,11 @@
       }}
       dollars
     </span>
-    <section :v-if="tradeCoins" class="trades-contanier">
+    <section v-if="tradeCoins" class="trades-contanier">
       <TradeArea :array="apiData" />
+    </section>
+    <section v-else class="no-trades">
+      <h3>No Trades</h3>
     </section>
   </main>
 </template>
@@ -110,6 +116,12 @@ header {
   width: 100%;
   overflow-x: scroll;
 }
+
+.no-trades {
+  width: 80%;
+  text-align: center;
+}
+
 hr {
   margin: 20px 0;
 }
@@ -136,12 +148,12 @@ label {
 }
 
 input,
-select,
 button {
   height: 30px;
   width: 150px;
   margin-right: 10px;
 }
+
 button {
   color: rgb(13, 22, 32);
   font-weight: bolder;
@@ -217,10 +229,11 @@ button:hover {
   }
 
   form {
-    width: 100%;
+    width: 80%;
     display: flex;
     flex-direction: row;
     margin: 0 0;
+    gap: 15px;
   }
   main {
     width: 50vw;
