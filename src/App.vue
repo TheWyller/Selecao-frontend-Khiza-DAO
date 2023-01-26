@@ -29,6 +29,7 @@
       ></v-select>
       <v-btn variant="tonal" type="submit"> Search </v-btn>
     </v-form>
+
     <span class="total-value" v-if="tradeCoins">
       In this period was traded
       {{
@@ -96,12 +97,17 @@ export default {
         const epochDataTo = Math.floor(
           new Date(toDataValue).getTime() / 1000.0
         );
-        this.apiData = await apiCall(
-          this.selectedCoin,
-          "trades",
-          epochDataFrom,
-          epochDataTo
-        );
+        try {
+          this.apiData = await apiCall(
+            this.selectedCoin,
+            "trades",
+            epochDataFrom,
+            epochDataTo
+          );
+          !this.apiData[0].amount;
+        } catch (e) {
+          this.notify2();
+        }
         this.handleMaximumPrice();
         this.formValid = true;
       }
@@ -119,7 +125,13 @@ export default {
         type: "error",
       });
     };
-    return { notify };
+    const notify2 = () => {
+      toast("Date in 'to' cannot be less than in 'from'", {
+        autoClose: 3000,
+        type: "error",
+      });
+    };
+    return { notify, notify2 };
   },
 };
 </script>
@@ -140,6 +152,7 @@ header {
   gap: 10px;
   width: 100%;
   overflow-x: scroll;
+  margin-top: 15px;
 }
 
 .no-trades {
